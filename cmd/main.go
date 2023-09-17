@@ -11,6 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mivanrm/productservice/config"
 	"github.com/mivanrm/productservice/internal/handler/product"
+	"github.com/mivanrm/productservice/internal/handler/review"
 	productrepo "github.com/mivanrm/productservice/internal/repo/product"
 	productuc "github.com/mivanrm/productservice/internal/usecase/product"
 
@@ -47,6 +48,12 @@ func main() {
 	r.HandleFunc("/product", productHandler.CreateProduct).Methods("POST")
 	r.HandleFunc("/product", productHandler.UpdateProduct).Methods("PUT")
 	r.HandleFunc("/product", productHandler.DeleteProduct).Methods("DELETE")
+
+	reviewHandler := review.New()
+	r.HandleFunc("/review", reviewHandler.GetReview).Methods("GET")
+	r.HandleFunc("/review", reviewHandler.AddReview).Methods("POST")
+	r.HandleFunc("/review", reviewHandler.UpdateReview).Methods("PUT")
+	r.HandleFunc("/review", reviewHandler.DeleteReview).Methods("DELETE")
 
 	http.Handle("/", r)
 	fmt.Println("Server listening on :8080")
