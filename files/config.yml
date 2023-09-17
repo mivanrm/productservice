@@ -1,0 +1,9 @@
+server:
+  port: 8000
+
+# Database credentials
+database:
+  user: "root"
+  pass: ""
+  host: "localhost"
+  port: "3306"
