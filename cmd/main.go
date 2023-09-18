@@ -56,7 +56,7 @@ func main() {
 
 	productUsecase := productuc.New(&productRepo, &variantRepo, &inventoryRepo)
 	inventoryUsecase := inventoryuc.New(&inventoryRepo)
-	reviewUsecase := reviewuc.New(&reviewRepo)
+	reviewUsecase := reviewuc.New(&reviewRepo, &productRepo)
 
 	productHandler := product.New(&productUsecase)
 

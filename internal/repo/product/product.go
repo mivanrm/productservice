@@ -1,8 +1,6 @@
 package product
 
 import (
-	"fmt"
-
 	"github.com/jmoiron/sqlx"
 	"github.com/mivanrm/productservice/internal/entity/product"
 )
@@ -21,7 +19,6 @@ func New(db *sqlx.DB) productRepo {
 func (pr *productRepo) CreateProduct(product product.Product) (int64, error) {
 	query := "INSERT INTO products (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING product_id "
 	var insertedID int64
-	fmt.Println(query)
 	err := pr.db.QueryRow(query, product.Name, product.Description, product.Image, product.Price).Scan(&insertedID)
 	if err != nil {
 		return 0, err
@@ -52,5 +49,13 @@ func (pr *productRepo) UpdateProduct(productID int64, updatedProduct product.Pro
 func (pr *productRepo) DeleteProduct(productID int64) error {
 	query := "DELETE FROM products WHERE product_id = $1"
 	_, err := pr.db.Exec(query, productID)
+	return err
+}
+
+// Update a product rating
+func (pr *productRepo) UpdateProductRating(productID int64, rating float64, rating_count int64) error {
+	query := "UPDATE products SET rating=$1, rating_count=$2 WHERE product_id=$3"
+	_, err := pr.db.Exec(query, rating, rating_count, productID)
+
 	return err
 }

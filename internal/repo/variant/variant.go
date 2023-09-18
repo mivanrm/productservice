@@ -2,7 +2,6 @@ package variant
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/mivanrm/productservice/internal/entity/product"
@@ -19,7 +18,6 @@ func New(db *sqlx.DB) variantRepo {
 func (r *variantRepo) CreateVariant(variant *product.Variant) (int64, error) {
 	query := "INSERT INTO variants (option_name, price, parent_id) VALUES ($1, $2, $3) RETURNING variant_id"
 	var insertedID int64
-	fmt.Println(query)
 	err := r.db.QueryRow(query, variant.OptionName, variant.Price, variant.ParentID).Scan(&insertedID)
 	if err != nil {
 		return 0, err
@@ -29,7 +27,6 @@ func (r *variantRepo) CreateVariant(variant *product.Variant) (int64, error) {
 }
 func (r *variantRepo) GetVariants(productID int64) ([]product.Variant, error) {
 	query := "SELECT * FROM variants WHERE parent_id = $1"
-	fmt.Println(query)
 	response := []product.Variant{}
 	err := r.db.Select(&response, query, productID)
 	if err != nil {
@@ -38,7 +35,6 @@ func (r *variantRepo) GetVariants(productID int64) ([]product.Variant, error) {
 		}
 		return nil, err
 	}
-	fmt.Println(response)
 	return response, nil
 }
 
