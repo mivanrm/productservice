@@ -2,9 +2,9 @@ package product
 
 type Product struct {
 	ID          int64   `json:"product_id" db:"product_id"`
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Rating      float32 `json:"rating"`
+	Name        string  `json:"name" db:"name"`
+	Description string  `json:"description" db:"description"`
+	Rating      float32 `json:"rating" db:"rating"`
 	RatingCount int64   `json:"rating_count" db:"rating_count"`
 	Image       string  `json:"image"`
 	Price       float64 `json:"price"`
