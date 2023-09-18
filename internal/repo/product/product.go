@@ -25,15 +25,21 @@ func New(db *sqlx.DB) productRepo {
 }
 
 // Create a new product
-func (pr *productRepo) CreateProduct(product *product.Product) error {
-	query := "INSERT INTO product (name, description, rating) VALUES (?, ?, ?)"
-
-	result, err := pr.db.Exec(query, product.Name, product.Description, product.Rating)
-	fmt.Println(result)
+func (pr *productRepo) CreateProduct(product product.Product) (int64, error) {
+	query := "INSERT INTO products (name, description, image, price) VALUES ($1, $2, $3, $4) RETURNING product_id "
+	var insertedID int64
+	fmt.Println(query)
+	err := pr.db.QueryRow(query, product.Name, product.Description, product.Image, product.Price).Scan(&insertedID)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+
+	// insertedID, err := result.LastInsertId()
+	// if err != nil {
+	// 	return 0, err
+	// }
+
+	return insertedID, nil
 }
 
 // Get a product by ID
@@ -48,7 +54,7 @@ func (pr *productRepo) GetProduct(productID int64) (*product.Product, error) {
 }
 
 // Update a product
-func (pr *productRepo) UpdateProduct(productID int64, updatedProduct *product.Product) error {
+func (pr *productRepo) UpdateProduct(productID int64, updatedProduct product.Product) error {
 	query := "UPDATE products SET name=$1, description=$2, rating=$3 WHERE product_id=$4"
 	_, err := pr.db.Exec(query, updatedProduct.Name, updatedProduct.Description, updatedProduct.Rating, productID)
 	return err

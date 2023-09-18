@@ -9,10 +9,14 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/mivanrm/productservice/config"
 	"github.com/mivanrm/productservice/internal/handler/product"
 	"github.com/mivanrm/productservice/internal/handler/review"
+	inventoryrepo "github.com/mivanrm/productservice/internal/repo/inventory"
 	productrepo "github.com/mivanrm/productservice/internal/repo/product"
+	variantrepo "github.com/mivanrm/productservice/internal/repo/variant"
+
 	productuc "github.com/mivanrm/productservice/internal/usecase/product"
 
 	"gopkg.in/yaml.v2"
@@ -34,14 +38,17 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	conn, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/product_service", cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port))
+	conn, err := sqlx.Connect("postgres", fmt.Sprintf("postgresql://%s:%s@%s:%s/product_service?sslmode=disable", cfg.Database.Username, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	r := mux.NewRouter()
 	productRepo := productrepo.New(conn)
-	productUsecase := productuc.New(&productRepo)
+	variantRepo := variantrepo.New(conn)
+	inventoryRepo := inventoryrepo.New(conn)
+
+	productUsecase := productuc.New(&productRepo, &variantRepo, &inventoryRepo)
 
 	productHandler := product.New(&productUsecase)
 	r.HandleFunc("/product", productHandler.GetProduct).Methods("GET")
