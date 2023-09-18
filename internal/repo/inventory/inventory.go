@@ -17,7 +17,7 @@ type inventoryRepo struct {
 func New(db *sqlx.DB) inventoryRepo {
 	return inventoryRepo{db}
 }
-func (r *inventoryRepo) CreateInventory(inventory *inventoryentity.Inventory) (int64, error) {
+func (r *inventoryRepo) CreateInventory(inventory inventoryentity.Inventory) (int64, error) {
 	query := "INSERT INTO inventory (variant_id, amount) VALUES ($1, $2) RETURNING stock_id"
 	var insertedID int64
 	fmt.Println(query)
@@ -28,17 +28,17 @@ func (r *inventoryRepo) CreateInventory(inventory *inventoryentity.Inventory) (i
 	return insertedID, nil
 }
 
-func (r *inventoryRepo) GetInventory(stockID int64) (*inventoryentity.Inventory, error) {
+func (r *inventoryRepo) GetInventory(stockID int64) (inventoryentity.Inventory, error) {
 	query := "SELECT * FROM inventory WHERE stock_id = $1"
 	var inventory inventoryentity.Inventory
 	err := r.db.Get(&inventory, query, stockID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, sql.ErrNoRows
+			return inventoryentity.Inventory{}, sql.ErrNoRows
 		}
-		return nil, err
+		return inventoryentity.Inventory{}, err
 	}
-	return &inventory, nil
+	return inventory, nil
 }
 
 func (r *inventoryRepo) UpdateInventory(variantID int64, updatedInventory *inventoryentity.Inventory) error {

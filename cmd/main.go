@@ -11,12 +11,15 @@ import (
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
 	"github.com/mivanrm/productservice/config"
+	inventoryhandler "github.com/mivanrm/productservice/internal/handler/inventory"
 	"github.com/mivanrm/productservice/internal/handler/product"
 	"github.com/mivanrm/productservice/internal/handler/review"
+
 	inventoryrepo "github.com/mivanrm/productservice/internal/repo/inventory"
 	productrepo "github.com/mivanrm/productservice/internal/repo/product"
 	variantrepo "github.com/mivanrm/productservice/internal/repo/variant"
 
+	inventoryuc "github.com/mivanrm/productservice/internal/usecase/inventory"
 	productuc "github.com/mivanrm/productservice/internal/usecase/product"
 
 	"gopkg.in/yaml.v2"
@@ -49,18 +52,23 @@ func main() {
 	inventoryRepo := inventoryrepo.New(conn)
 
 	productUsecase := productuc.New(&productRepo, &variantRepo, &inventoryRepo)
+	inventoryUsecase := inventoryuc.New(&inventoryRepo)
 
 	productHandler := product.New(&productUsecase)
+
 	r.HandleFunc("/product/{id}", productHandler.GetProduct).Methods("GET")
 	r.HandleFunc("/product", productHandler.CreateProduct).Methods("POST")
 	r.HandleFunc("/product", productHandler.UpdateProduct).Methods("PUT")
-	r.HandleFunc("/product", productHandler.DeleteProduct).Methods("DELETE")
+	r.HandleFunc("/product/{id}", productHandler.DeleteProduct).Methods("DELETE")
 
 	reviewHandler := review.New()
 	r.HandleFunc("/review", reviewHandler.GetReview).Methods("GET")
 	r.HandleFunc("/review", reviewHandler.AddReview).Methods("POST")
 	r.HandleFunc("/review", reviewHandler.UpdateReview).Methods("PUT")
 	r.HandleFunc("/review", reviewHandler.DeleteReview).Methods("DELETE")
+
+	inventoryHandler := inventoryhandler.New(&inventoryUsecase)
+	r.HandleFunc("/inventory", inventoryHandler.UpdateInventory).Methods("PUT")
 
 	http.Handle("/", r)
 	fmt.Println("Server listening on :8080")

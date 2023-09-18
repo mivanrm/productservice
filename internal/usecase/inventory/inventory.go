@@ -8,14 +8,13 @@ type inventoryRepository interface {
 	CreateInventory(inventory inventoryentity.Inventory) (int64, error)
 	GetInventory(stockID int64) (inventoryentity.Inventory, error)
 	UpdateInventory(stockID int64, updatedInventory *inventoryentity.Inventory) error
-	DeleteInventory(stockID int64) error
 }
 
 type inventoryUseCase struct {
 	inventoryRepo inventoryRepository
 }
 
-func NewInventoryUseCase(inventoryRepo inventoryRepository) inventoryUseCase {
+func New(inventoryRepo inventoryRepository) inventoryUseCase {
 	return inventoryUseCase{inventoryRepo}
 }
 
@@ -23,6 +22,6 @@ func (uc *inventoryUseCase) GetInventory(VariantID int64) (inventoryentity.Inven
 	return uc.inventoryRepo.GetInventory(VariantID)
 }
 
-func (uc *inventoryUseCase) UpdateInventory(VariantID int64, updatedInventory *inventoryentity.Inventory) error {
-	return uc.inventoryRepo.UpdateInventory(VariantID, updatedInventory)
+func (uc *inventoryUseCase) UpdateInventory(VariantID int64, updatedInventory inventoryentity.Inventory) error {
+	return uc.inventoryRepo.UpdateInventory(VariantID, &updatedInventory)
 }

@@ -23,7 +23,7 @@ type variantRepo interface {
 }
 
 type inventoryRepo interface {
-	CreateInventory(inventory *inventoryentity.Inventory) (int64, error)
+	CreateInventory(inventory inventoryentity.Inventory) (int64, error)
 	GetInventoryByVariantIDs(variantIDs []int64) (map[int64]int64, error)
 }
 type productUsecase struct {
@@ -68,7 +68,7 @@ func (uc *productUsecase) CreateProduct(createproductParam productentity.CreateP
 			fmt.Println(err.Error(), variantID)
 			return err
 		}
-		_, err = uc.inventoryRepo.CreateInventory(&inventoryentity.Inventory{
+		_, err = uc.inventoryRepo.CreateInventory(inventoryentity.Inventory{
 			VariantID: variantID,
 			Amount:    variant.Stock,
 		})
