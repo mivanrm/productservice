@@ -12,7 +12,7 @@ type reviewRepo struct {
 	db *sqlx.DB
 }
 
-func NewReviewRepository(db *sqlx.DB) reviewRepo {
+func New(db *sqlx.DB) reviewRepo {
 	return reviewRepo{db}
 }
 func (r *reviewRepo) CreateReview(review *reviewmodel.Review) (int64, error) {

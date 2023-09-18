@@ -13,14 +13,16 @@ import (
 	"github.com/mivanrm/productservice/config"
 	inventoryhandler "github.com/mivanrm/productservice/internal/handler/inventory"
 	"github.com/mivanrm/productservice/internal/handler/product"
-	"github.com/mivanrm/productservice/internal/handler/review"
+	reviewhandler "github.com/mivanrm/productservice/internal/handler/review"
 
 	inventoryrepo "github.com/mivanrm/productservice/internal/repo/inventory"
 	productrepo "github.com/mivanrm/productservice/internal/repo/product"
+	reviewrepo "github.com/mivanrm/productservice/internal/repo/review"
 	variantrepo "github.com/mivanrm/productservice/internal/repo/variant"
 
 	inventoryuc "github.com/mivanrm/productservice/internal/usecase/inventory"
 	productuc "github.com/mivanrm/productservice/internal/usecase/product"
+	reviewuc "github.com/mivanrm/productservice/internal/usecase/review"
 
 	"gopkg.in/yaml.v2"
 )
@@ -50,9 +52,11 @@ func main() {
 	productRepo := productrepo.New(conn)
 	variantRepo := variantrepo.New(conn)
 	inventoryRepo := inventoryrepo.New(conn)
+	reviewRepo := reviewrepo.New(conn)
 
 	productUsecase := productuc.New(&productRepo, &variantRepo, &inventoryRepo)
 	inventoryUsecase := inventoryuc.New(&inventoryRepo)
+	reviewUsecase := reviewuc.New(&reviewRepo)
 
 	productHandler := product.New(&productUsecase)
 
@@ -61,9 +65,9 @@ func main() {
 	r.HandleFunc("/product", productHandler.UpdateProduct).Methods("PUT")
 	r.HandleFunc("/product/{id}", productHandler.DeleteProduct).Methods("DELETE")
 
-	reviewHandler := review.New()
+	reviewHandler := reviewhandler.New(&reviewUsecase)
 	r.HandleFunc("/review", reviewHandler.GetReview).Methods("GET")
-	r.HandleFunc("/review", reviewHandler.AddReview).Methods("POST")
+	r.HandleFunc("/review", reviewHandler.CreateReview).Methods("POST")
 	r.HandleFunc("/review", reviewHandler.UpdateReview).Methods("PUT")
 	r.HandleFunc("/review", reviewHandler.DeleteReview).Methods("DELETE")
 

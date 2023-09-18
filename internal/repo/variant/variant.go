@@ -43,7 +43,7 @@ func (r *variantRepo) GetVariants(productID int64) ([]product.Variant, error) {
 }
 
 func (r *variantRepo) UpdateVariant(variantID int64, updatedVariant *product.Variant) error {
-	query := "UPDATE variants SET name = ?, price = ? = ? WHERE variant_id = ?"
+	query := "UPDATE variants SET option_name = $1, price = $2 WHERE variant_id = $3"
 	_, err := r.db.Exec(query, updatedVariant.OptionName, updatedVariant.Price, variantID)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (r *variantRepo) UpdateVariant(variantID int64, updatedVariant *product.Var
 }
 
 func (r *variantRepo) DeleteVariant(variantID int64) error {
-	query := "DELETE FROM variants WHERE variant_id = ?"
+	query := "DELETE FROM variants WHERE variant_id = $1"
 	_, err := r.db.Exec(query, variantID)
 	if err != nil {
 		return err

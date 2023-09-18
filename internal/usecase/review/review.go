@@ -15,7 +15,7 @@ type reviewUseCase struct {
 	reviewRepo reviewRepository
 }
 
-func NewReviewUseCase(reviewRepo reviewRepository) reviewUseCase {
+func New(reviewRepo reviewRepository) reviewUseCase {
 	return reviewUseCase{reviewRepo: reviewRepo}
 }
 

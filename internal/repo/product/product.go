@@ -43,8 +43,8 @@ func (pr *productRepo) GetProduct(productID int64) (*product.Product, error) {
 
 // Update a product
 func (pr *productRepo) UpdateProduct(productID int64, updatedProduct product.Product) error {
-	query := "UPDATE products SET name=$1, description=$2, rating=$3 WHERE product_id=$4"
-	_, err := pr.db.Exec(query, updatedProduct.Name, updatedProduct.Description, updatedProduct.Rating, productID)
+	query := "UPDATE products SET name=$1, description=$2, price=$3 WHERE product_id=$4"
+	_, err := pr.db.Exec(query, updatedProduct.Name, updatedProduct.Description, updatedProduct.Price, productID)
 	return err
 }
 
