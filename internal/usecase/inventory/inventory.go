@@ -19,17 +19,10 @@ func NewInventoryUseCase(inventoryRepo inventoryRepository) inventoryUseCase {
 	return inventoryUseCase{inventoryRepo}
 }
 
-func (uc *inventoryUseCase) CreateInventory(inventory inventoryentity.Inventory) (int64, error) {
-	// You can add business logic/validation here if needed
-	return uc.inventoryRepo.CreateInventory(inventory)
-}
-
 func (uc *inventoryUseCase) GetInventory(VariantID int64) (inventoryentity.Inventory, error) {
-	// You can add business logic here if needed
 	return uc.inventoryRepo.GetInventory(VariantID)
 }
 
 func (uc *inventoryUseCase) UpdateInventory(VariantID int64, updatedInventory *inventoryentity.Inventory) error {
-	// You can add business logic/validation here if needed
 	return uc.inventoryRepo.UpdateInventory(VariantID, updatedInventory)
 }

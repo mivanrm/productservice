@@ -27,9 +27,9 @@ func (r *variantRepo) CreateVariant(variant *product.Variant) (int64, error) {
 
 	return insertedID, nil
 }
-
 func (r *variantRepo) GetVariants(productID int64) ([]product.Variant, error) {
-	query := "SELECT * FROM variants WHERE product_id = ?"
+	query := "SELECT * FROM variants WHERE parent_id = $1"
+	fmt.Println(query)
 	response := []product.Variant{}
 	err := r.db.Select(&response, query, productID)
 	if err != nil {
@@ -38,6 +38,7 @@ func (r *variantRepo) GetVariants(productID int64) ([]product.Variant, error) {
 		}
 		return nil, err
 	}
+	fmt.Println(response)
 	return response, nil
 }
 

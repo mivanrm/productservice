@@ -24,6 +24,7 @@ type variantRepo interface {
 
 type inventoryRepo interface {
 	CreateInventory(inventory *inventoryentity.Inventory) (int64, error)
+	GetInventoryByVariantIDs(variantIDs []int64) (map[int64]int64, error)
 }
 type productUsecase struct {
 	productRepo   productRepo
@@ -50,6 +51,12 @@ func (uc *productUsecase) CreateProduct(createproductParam productentity.CreateP
 		fmt.Println(err.Error())
 		return err
 	}
+	if len(createproductParam.Variants) == 0 {
+		createproductParam.Variants = append(createproductParam.Variants, productentity.Variant{
+			Price: createproductParam.Price,
+			Stock: createproductParam.Stock,
+		})
+	}
 	for _, variant := range createproductParam.Variants {
 		variantID, err := uc.variantRepo.CreateVariant(&productentity.Variant{
 			ParentID:   productID,
@@ -63,7 +70,7 @@ func (uc *productUsecase) CreateProduct(createproductParam productentity.CreateP
 		}
 		_, err = uc.inventoryRepo.CreateInventory(&inventoryentity.Inventory{
 			VariantID: variantID,
-			Amount:    variant.VariantStock,
+			Amount:    variant.Stock,
 		})
 		if err != nil {
 			fmt.Println(err.Error(), variantID)
@@ -76,20 +83,24 @@ func (uc *productUsecase) CreateProduct(createproductParam productentity.CreateP
 
 func (uc *productUsecase) GetProduct(productID int64) (productentity.ProductResponse, error) {
 
-	if productID <= 0 {
-		return productentity.ProductResponse{}, errors.New("invalid product ID")
-	}
 	imageArray := []string{}
 	product, err := uc.productRepo.GetProduct(productID)
 	if err != nil {
-		return productentity.ProductResponse{}, nil
+		return productentity.ProductResponse{}, err
 	}
 	imageArray = append(imageArray, product.Image)
 
 	variant, err := uc.variantRepo.GetVariants(productID)
 	if err != nil {
-		return productentity.ProductResponse{}, nil
+		return productentity.ProductResponse{}, err
 	}
+
+	stock, err := uc.inventoryRepo.GetInventoryByVariantIDs(getVariantIDList(variant))
+
+	if err != nil {
+		return productentity.ProductResponse{}, err
+	}
+	updateVariantStock(variant, stock)
 	return productentity.ProductResponse{
 		Product:  *product,
 		Image:    imageArray,
@@ -124,4 +135,18 @@ func (uc *productUsecase) DeleteProduct(productID int64) error {
 		return errors.New("invalid product ID")
 	}
 	return uc.productRepo.DeleteProduct(productID)
+}
+
+func getVariantIDList(variants []product.Variant) []int64 {
+	variantList := []int64{}
+	for _, variant := range variants {
+		variantList = append(variantList, variant.ID)
+	}
+	return variantList
+}
+
+func updateVariantStock(variants []product.Variant, stock map[int64]int64) {
+	for i := range variants {
+		variants[i].Stock = stock[variants[i].ID]
+	}
 }

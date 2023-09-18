@@ -51,7 +51,7 @@ func main() {
 	productUsecase := productuc.New(&productRepo, &variantRepo, &inventoryRepo)
 
 	productHandler := product.New(&productUsecase)
-	r.HandleFunc("/product", productHandler.GetProduct).Methods("GET")
+	r.HandleFunc("/product/{id}", productHandler.GetProduct).Methods("GET")
 	r.HandleFunc("/product", productHandler.CreateProduct).Methods("POST")
 	r.HandleFunc("/product", productHandler.UpdateProduct).Methods("PUT")
 	r.HandleFunc("/product", productHandler.DeleteProduct).Methods("DELETE")

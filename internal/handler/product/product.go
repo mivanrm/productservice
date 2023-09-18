@@ -47,6 +47,7 @@ func (ph *handler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 func (ph *handler) GetProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	fmt.Println(vars)
 	productID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

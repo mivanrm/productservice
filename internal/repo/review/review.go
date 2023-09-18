@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/mivanrm/productservice/internal/entity/review"
 	reviewmodel "github.com/mivanrm/productservice/internal/entity/review"
 )
 
@@ -16,15 +15,10 @@ type reviewRepo struct {
 func NewReviewRepository(db *sqlx.DB) reviewRepo {
 	return reviewRepo{db}
 }
-
 func (r *reviewRepo) CreateReview(review *reviewmodel.Review) (int64, error) {
-	query := "INSERT INTO reviews (product_id, review_text, rating) VALUES (?, ?, ?)"
-	result, err := r.db.Exec(query, review.ProductID, review.ReviewText, review.Rating)
-	if err != nil {
-		return 0, err
-	}
-
-	insertedID, err := result.LastInsertId()
+	query := "INSERT INTO reviews (product_id, review_text, rating) VALUES ($1, $2, $3) RETURNING review_id"
+	var insertedID int64
+	err := r.db.QueryRow(query, review.ProductID, review.ReviewText, review.Rating).Scan(&insertedID)
 	if err != nil {
 		return 0, err
 	}
@@ -32,9 +26,9 @@ func (r *reviewRepo) CreateReview(review *reviewmodel.Review) (int64, error) {
 	return insertedID, nil
 }
 
-func (r *reviewRepo) GetReview(reviewID int64) (*review.Review, error) {
-	query := "SELECT * FROM reviews WHERE review_id = ?"
-	var review review.Review
+func (r *reviewRepo) GetReview(reviewID int64) (*reviewmodel.Review, error) {
+	query := "SELECT * FROM reviews WHERE review_id = $1"
+	var review reviewmodel.Review
 	err := r.db.Get(&review, query, reviewID)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -45,8 +39,8 @@ func (r *reviewRepo) GetReview(reviewID int64) (*review.Review, error) {
 	return &review, nil
 }
 
-func (r *reviewRepo) UpdateReview(reviewID int64, updatedReview *review.Review) error {
-	query := "UPDATE reviews SET review_text = ?, rating = ? WHERE review_id = ?"
+func (r *reviewRepo) UpdateReview(reviewID int64, updatedReview *reviewmodel.Review) error {
+	query := "UPDATE reviews SET review_text = $1, rating = $2 WHERE review_id = $3"
 	_, err := r.db.Exec(query, updatedReview.ReviewText, updatedReview.Rating, reviewID)
 	if err != nil {
 		return err
@@ -55,7 +49,7 @@ func (r *reviewRepo) UpdateReview(reviewID int64, updatedReview *review.Review) 
 }
 
 func (r *reviewRepo) DeleteReview(reviewID int64) error {
-	query := "DELETE FROM reviews WHERE review_id = ?"
+	query := "DELETE FROM reviews WHERE review_id = $1"
 	_, err := r.db.Exec(query, reviewID)
 	if err != nil {
 		return err
@@ -64,7 +58,7 @@ func (r *reviewRepo) DeleteReview(reviewID int64) error {
 }
 
 func (r *reviewRepo) GetReviewsByProductID(productID int64) ([]*reviewmodel.Review, error) {
-	query := "SELECT * FROM reviews WHERE product_id = ?"
+	query := "SELECT * FROM reviews WHERE product_id = $1"
 	var reviews []*reviewmodel.Review
 	err := r.db.Select(&reviews, query, productID)
 	if err != nil {

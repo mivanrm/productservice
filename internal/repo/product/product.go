@@ -7,13 +7,6 @@ import (
 	"github.com/mivanrm/productservice/internal/entity/product"
 )
 
-// type Repo interface {
-// 	CreateProduct(product *product.Product) error
-// 	GetProduct(productID int64) (*product.Product, error)
-// 	UpdateProduct(productID int64, updatedProduct *product.Product) error
-// 	DeleteProduct(productID int64) error
-// }
-
 type productRepo struct {
 	db *sqlx.DB
 }
@@ -33,11 +26,6 @@ func (pr *productRepo) CreateProduct(product product.Product) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-
-	// insertedID, err := result.LastInsertId()
-	// if err != nil {
-	// 	return 0, err
-	// }
 
 	return insertedID, nil
 }
